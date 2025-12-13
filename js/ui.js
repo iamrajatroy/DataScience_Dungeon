@@ -111,6 +111,11 @@ class UIManager {
     setupEventListeners() {
         // Main menu buttons
         this.elements.newGameBtn.addEventListener('click', () => {
+            if (!window.api.isAuthenticated()) {
+                this.showAuthModal('login');
+                this.showAuthError('You must be logged in to play!');
+                return;
+            }
             if (this.onNewGame) this.onNewGame();
         });
 
@@ -285,6 +290,8 @@ class UIManager {
             if (logoutBtn) logoutBtn.style.display = 'none';
             if (userDisplay) userDisplay.style.display = 'none';
         }
+
+        this.updateContinueButton();
     }
 
     showAuthModal(tab = 'login') {

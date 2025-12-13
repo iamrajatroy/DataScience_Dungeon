@@ -177,15 +177,17 @@ class GameState {
     }
 
     async hasSavedGame() {
-        if (this.isOnline && this.user) {
+        if (!this.user) return false;
+
+        if (this.isOnline) {
             try {
                 const progress = await window.api.getProgress();
                 return progress && progress.current_room > 1;
             } catch {
-                return localStorage.getItem(this.storageKey) !== null;
+                return false;
             }
         }
-        return localStorage.getItem(this.storageKey) !== null;
+        return false;
     }
 
     async clearSave() {
