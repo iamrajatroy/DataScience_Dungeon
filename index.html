@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Science Dungeon</title>
+    <meta name="description"
+        content="An 8-bit dungeon crawler game that tests your data science knowledge. Navigate through 10 rooms, open chests, and answer questions to progress!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Main Menu Screen -->
+        <div id="main-menu" class="screen active">
+            <div class="menu-content">
+                <h1 class="game-title">
+                    <span class="title-line">DATA SCIENCE</span>
+                    <span class="title-line accent">DUNGEON</span>
+                </h1>
+
+                <!-- Auth Section -->
+                <div id="auth-section" class="auth-section">
+                    <div id="user-display" class="user-display" style="display: none;"></div>
+                    <div class="auth-buttons">
+                        <button id="login-btn" class="auth-btn">LOGIN</button>
+                        <button id="register-btn" class="auth-btn">REGISTER</button>
+                        <button id="logout-btn" class="auth-btn" style="display: none;">LOGOUT</button>
+                    </div>
+                </div>
+
+                <div class="menu-buttons">
+                    <button id="new-game-btn" class="menu-btn">NEW GAME</button>
+                    <button id="continue-btn" class="menu-btn">CONTINUE</button>
+                    <button id="how-to-play-btn" class="menu-btn">HOW TO PLAY</button>
+                </div>
+                <p class="copyright">© 2025 Data Science Dungeon</p>
+            </div>
+        </div>
+
+        <!-- Auth Modal -->
+        <div id="auth-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-box auth-box">
+                <button id="auth-close-btn" class="close-btn">×</button>
+                <div class="auth-tabs">
+                    <button id="auth-tab-login" class="auth-tab active">LOGIN</button>
+                    <button id="auth-tab-register" class="auth-tab">REGISTER</button>
+                </div>
+
+                <div id="auth-error" class="auth-error" style="display: none;"></div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email">EMAIL</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">PASSWORD</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="••••••••">
+                    </div>
+                    <button id="auth-login-btn" class="menu-btn auth-submit">LOGIN</button>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="register-username">USERNAME</label>
+                        <input type="text" id="register-username" class="form-input" placeholder="hero123">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">EMAIL</label>
+                        <input type="email" id="register-email" class="form-input" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">PASSWORD</label>
+                        <input type="password" id="register-password" class="form-input" placeholder="••••••••">
+                    </div>
+                    <button id="auth-register-btn" class="menu-btn auth-submit">REGISTER</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Play Screen -->
+        <div id="how-to-play" class="screen">
+            <div class="modal-content">
+                <h2>HOW TO PLAY</h2>
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <span class="key">↑ ↓ ← →</span>
+                        <span class="desc">Move your hero</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="key">SPACE</span>
+                        <span class="desc">Open treasure chests</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="key">ESC</span>
+                        <span class="desc">Pause game</span>
+                    </div>
+                </div>
+                <div class="rules">
+                    <p>🏰 Navigate through 10 dungeon rooms</p>
+                    <p>📦 Each room has 3 treasure chests</p>
+                    <p>❓ Answer data science questions to progress</p>
+                    <p>💚 Wrong answers reduce your health by 20%</p>
+                    <p>💀 Health at 0% = Game Over!</p>
+                </div>
+                <button id="back-to-menu-btn" class="menu-btn">BACK</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <!-- HUD -->
+            <div id="hud">
+                <div id="room-indicator">
+                    <span class="hud-label">ROOM</span>
+                    <span id="room-number">1/10</span>
+                </div>
+                <div id="health-container">
+                    <span class="hud-label">HEALTH</span>
+                    <div id="health-bar">
+                        <div id="health-fill"></div>
+                    </div>
+                    <span id="health-percent">100%</span>
+                </div>
+                <div id="score-indicator">
+                    <span class="hud-label">SCORE</span>
+                    <span id="score-value">0</span>
+                </div>
+            </div>
+
+            <!-- Game Canvas -->
+            <canvas id="game-canvas" width="800" height="600"></canvas>
+
+            <!-- Interaction Prompt -->
+            <div id="interaction-prompt" class="hidden">
+                <span class="prompt-text">Press SPACE to open chest</span>
+            </div>
+        </div>
+
+        <!-- Question Modal -->
+        <div id="question-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-box question-box">
+                <div id="question-difficulty" class="difficulty-badge">EASY</div>
+                <div id="question-topic" class="topic-badge">Statistics</div>
+                <p id="question-text">Loading question...</p>
+                <div id="answer-options">
+                    <button class="answer-btn" data-option="A"><span class="option-letter">A</span><span
+                            class="option-text"></span></button>
+                    <button class="answer-btn" data-option="B"><span class="option-letter">B</span><span
+                            class="option-text"></span></button>
+                    <button class="answer-btn" data-option="C"><span class="option-letter">C</span><span
+                            class="option-text"></span></button>
+                    <button class="answer-btn" data-option="D"><span class="option-letter">D</span><span
+                            class="option-text"></span></button>
+                </div>
+                <div id="answer-feedback" class="hidden">
+                    <p id="feedback-text"></p>
+                    <p id="explanation-text"></p>
+                    <button id="continue-btn-modal" class="menu-btn">CONTINUE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-box">
+                <h2>PAUSED</h2>
+                <div class="menu-buttons">
+                    <button id="resume-btn" class="menu-btn">RESUME</button>
+                    <button id="save-btn" class="menu-btn">SAVE GAME</button>
+                    <button id="quit-btn" class="menu-btn danger">QUIT TO MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over" class="screen">
+            <div class="modal-content game-over-content">
+                <h1 class="game-over-title">GAME OVER</h1>
+                <div class="skull-icon">💀</div>
+                <p class="game-over-message">The darkness has consumed you...</p>
+                <div class="final-stats">
+                    <p>Rooms Cleared: <span id="final-rooms">0</span>/10</p>
+                    <p>Questions Answered: <span id="final-correct">0</span></p>
+                    <p>Final Score: <span id="final-score">0</span></p>
+                </div>
+                <div class="menu-buttons">
+                    <button id="retry-btn" class="menu-btn">TRY AGAIN</button>
+                    <button id="menu-btn-gameover" class="menu-btn">MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory" class="screen">
+            <div class="modal-content victory-content">
+                <h1 class="victory-title">VICTORY!</h1>
+                <div class="trophy-icon">🏆</div>
+                <p class="victory-message">You have conquered the Data Science Dungeon!</p>
+                <div class="final-stats">
+                    <p>All 10 Rooms Cleared!</p>
+                    <p>Questions Answered: <span id="victory-correct">0</span></p>
+                    <p>Final Score: <span id="victory-score">0</span></p>
+                    <p>Health Remaining: <span id="victory-health">0</span>%</p>
+                </div>
+                <div class="menu-buttons">
+                    <button id="play-again-btn" class="menu-btn">PLAY AGAIN</button>
+                    <button id="menu-btn-victory" class="menu-btn">MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Complete Overlay -->
+        <div id="room-complete" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-box celebration">
+                <h2>ROOM COMPLETE!</h2>
+                <div class="star-icon">⭐</div>
+                <p>You've cleared Room <span id="completed-room-num">1</span>!</p>
+                <p class="next-room-hint">Proceed to the portal to enter the next room...</p>
+                <button id="continue-room-btn" class="menu-btn">CONTINUE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/api.js?v=34"></script>
+    <script src="js/questions.js?v=34"></script>
+    <script src="js/gameState.js?v=34"></script>
+    <script src="js/player.js?v=34"></script>
+    <script src="js/chest.js?v=34"></script>
+    <script src="js/room.js?v=34"></script>
+    <script src="js/ui.js?v=34"></script>
+    <script src="js/game.js?v=34"></script>
+</body>
+
+</html>
