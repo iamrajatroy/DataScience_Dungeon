@@ -178,13 +178,27 @@ class Game {
     }
 
     async continueGame() {
-        // Load saved state
-        const hasSave = await this.gameState.hasSavedGame();
-        if (hasSave) {
-            if (this.gameState.isOnline && this.gameState.user) {
-                await this.gameState.loadFromServer();
-            } else {
-                this.gameState.loadFromStorage();
+        // Try to load saved state from server first, then localStorage
+        let loaded = false;
+
+        if (this.gameState.isOnline && this.gameState.user) {
+            try {
+                const progress = await window.api.getProgress();
+                if (progress && progress.current_room > 1) {
+                    await this.gameState.loadFromServer();
+                    loaded = true;
+                }
+            } catch (e) {
+                console.error('Failed to load from server:', e);
+            }
+        }
+
+        // Fallback to localStorage if server didn't have a valid save
+        if (!loaded) {
+            const hasLocalSave = this.gameState.loadFromStorage();
+            if (!hasLocalSave || this.gameState.currentRoom <= 1) {
+                console.warn('No valid save found');
+                return;
             }
         }
 

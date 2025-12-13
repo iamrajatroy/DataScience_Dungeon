@@ -177,12 +177,27 @@ class GameState {
     }
 
     async hasSavedGame() {
+        // User must be logged in to see continue button
         if (!this.user) return false;
 
+        // Check server first if online
         if (this.isOnline) {
             try {
                 const progress = await window.api.getProgress();
-                return progress && progress.current_room > 1;
+                if (progress && progress.current_room > 1) {
+                    return true;
+                }
+            } catch {
+                // Fall through to check localStorage
+            }
+        }
+
+        // Also check localStorage for saves
+        const saved = localStorage.getItem(this.storageKey);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                return data.currentRoom > 1;
             } catch {
                 return false;
             }
