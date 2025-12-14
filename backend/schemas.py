@@ -3,7 +3,7 @@
 # ========================================
 
 from pydantic import BaseModel, EmailStr
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 from datetime import datetime
 
 
@@ -48,7 +48,7 @@ class GameProgressCreate(BaseModel):
     total_incorrect: int = 0
     score: int = 0
     game_completed: bool = False
-    chest_states: Optional[Dict] = {}
+    chest_states: Optional[Any] = []
 
 
 class GameProgressUpdate(BaseModel):
@@ -58,7 +58,7 @@ class GameProgressUpdate(BaseModel):
     total_incorrect: Optional[int] = None
     score: Optional[int] = None
     game_completed: Optional[bool] = None
-    chest_states: Optional[Dict] = None
+    chest_states: Optional[Any] = None
 
 
 class GameProgressResponse(BaseModel):

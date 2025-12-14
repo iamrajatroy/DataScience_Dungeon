@@ -199,6 +199,15 @@ class ApiService {
         return this.handleResponse(response);
     }
 
+    // ==================== LEADERBOARD ENDPOINTS ====================
+
+    async getLeaderboard() {
+        const response = await fetch(`${API_BASE_URL}/leaderboard`, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        return this.handleResponse(response);
+    }
+
     // ==================== HEALTH CHECK ====================
 
     async healthCheck() {

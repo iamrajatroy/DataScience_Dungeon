@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from database import engine, Base
-from routers import users, progress, questions
+from routers import users, progress, questions, leaderboard
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app.add_middleware(
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(progress.router, prefix="/api/progress", tags=["Game Progress"])
 app.include_router(questions.router, prefix="/api/questions", tags=["Questions"])
+app.include_router(leaderboard.router, prefix="/api/leaderboard", tags=["Leaderboard"])
 
 
 @app.get("/")

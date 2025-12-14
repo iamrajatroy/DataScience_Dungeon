@@ -79,7 +79,16 @@ class UIManager {
             finalScore: document.getElementById('final-score'),
             victoryCorrect: document.getElementById('victory-correct'),
             victoryScore: document.getElementById('victory-score'),
-            victoryHealth: document.getElementById('victory-health')
+            victoryHealth: document.getElementById('victory-health'),
+
+            // Leaderboard
+            leaderboardBtn: document.getElementById('leaderboard-btn'),
+            leaderboardModal: document.getElementById('leaderboard-modal'),
+            leaderboardCloseBtn: document.getElementById('leaderboard-close-btn'),
+            leaderboardBody: document.getElementById('leaderboard-body'),
+            leaderboardTable: document.getElementById('leaderboard-table'),
+            leaderboardEmpty: document.getElementById('leaderboard-empty'),
+            leaderboardLoading: document.getElementById('leaderboard-loading')
         };
 
         console.log('[UIManager] Elements cached:', {
@@ -104,6 +113,7 @@ class UIManager {
         this.onLogin = null;
         this.onRegister = null;
         this.onLogout = null;
+        this.onShowLeaderboard = null;
 
         this.setupEventListeners();
     }
@@ -126,6 +136,19 @@ class UIManager {
         this.elements.howToPlayBtn.addEventListener('click', () => {
             this.showScreen('howToPlay');
         });
+
+        // Leaderboard button
+        if (this.elements.leaderboardBtn) {
+            this.elements.leaderboardBtn.addEventListener('click', () => {
+                if (this.onShowLeaderboard) this.onShowLeaderboard();
+            });
+        }
+
+        if (this.elements.leaderboardCloseBtn) {
+            this.elements.leaderboardCloseBtn.addEventListener('click', () => {
+                this.hideLeaderboard();
+            });
+        }
 
         this.elements.backToMenuBtn.addEventListener('click', () => {
             this.showScreen('mainMenu');
@@ -365,7 +388,9 @@ class UIManager {
     }
 
     async updateContinueButton() {
+        console.log('[UIManager] updateContinueButton called');
         const hasSave = await this.gameState.hasSavedGame();
+        console.log('[UIManager] hasSave result:', hasSave);
         this.elements.continueGameBtn.style.display = hasSave ? 'block' : 'none';
     }
 
@@ -529,6 +554,77 @@ class UIManager {
             saveBtn.textContent = originalText;
             saveBtn.style.backgroundColor = '';
         }, 1500);
+    }
+
+    // ==================== LEADERBOARD ====================
+
+    showLeaderboard(leaderboardData) {
+        // Show modal
+        this.elements.leaderboardModal.classList.remove('hidden');
+
+        // Hide loading, show table or empty state
+        this.elements.leaderboardLoading.classList.add('hidden');
+
+        if (!leaderboardData || leaderboardData.length === 0) {
+            this.elements.leaderboardTable.classList.add('hidden');
+            this.elements.leaderboardEmpty.classList.remove('hidden');
+            return;
+        }
+
+        this.elements.leaderboardTable.classList.remove('hidden');
+        this.elements.leaderboardEmpty.classList.add('hidden');
+
+        // Populate table
+        const tbody = this.elements.leaderboardBody;
+        tbody.innerHTML = '';
+
+        leaderboardData.forEach(entry => {
+            const row = document.createElement('tr');
+            row.className = `rank-${entry.rank}`;
+
+            // Rank cell with medal emoji for top 3
+            const rankCell = document.createElement('td');
+            if (entry.rank === 1) rankCell.textContent = '🥇';
+            else if (entry.rank === 2) rankCell.textContent = '🥈';
+            else if (entry.rank === 3) rankCell.textContent = '🥉';
+            else rankCell.textContent = entry.rank;
+            row.appendChild(rankCell);
+
+            // Username cell with champion badge if game completed
+            const usernameCell = document.createElement('td');
+            usernameCell.textContent = entry.username;
+            if (entry.game_completed) {
+                const badge = document.createElement('span');
+                badge.className = 'champion-badge';
+                badge.textContent = '👑';
+                badge.title = 'Dungeon Champion!';
+                usernameCell.appendChild(badge);
+            }
+            row.appendChild(usernameCell);
+
+            // Score cell
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = entry.score.toLocaleString();
+            row.appendChild(scoreCell);
+
+            // Rooms cell
+            const roomsCell = document.createElement('td');
+            roomsCell.textContent = `${entry.rooms_completed}/10`;
+            row.appendChild(roomsCell);
+
+            tbody.appendChild(row);
+        });
+    }
+
+    showLeaderboardLoading() {
+        this.elements.leaderboardModal.classList.remove('hidden');
+        this.elements.leaderboardLoading.classList.remove('hidden');
+        this.elements.leaderboardTable.classList.add('hidden');
+        this.elements.leaderboardEmpty.classList.add('hidden');
+    }
+
+    hideLeaderboard() {
+        this.elements.leaderboardModal.classList.add('hidden');
     }
 }
 

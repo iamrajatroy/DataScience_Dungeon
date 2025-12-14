@@ -824,3 +824,94 @@ body {
     border: 2px solid var(--danger-color);
     text-align: center;
 }
+
+/* ==================== LEADERBOARD STYLES ==================== */
+
+.leaderboard-box {
+    width: 500px;
+    max-height: 80vh;
+}
+
+.leaderboard-box h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+#leaderboard-content {
+    text-align: center;
+}
+
+#leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+#leaderboard-table th,
+#leaderboard-table td {
+    font-family: 'Press Start 2P', cursive;
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+}
+
+#leaderboard-table th {
+    font-size: 8px;
+    color: var(--text-secondary);
+    background: var(--bg-darker);
+}
+
+#leaderboard-table td {
+    font-size: 10px;
+}
+
+#leaderboard-table tbody tr:hover {
+    background: rgba(74, 222, 128, 0.1);
+}
+
+/* Rank styling */
+#leaderboard-table td:first-child {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.rank-1 td:first-child { color: #ffd700; } /* Gold */
+.rank-2 td:first-child { color: #c0c0c0; } /* Silver */
+.rank-3 td:first-child { color: #cd7f32; } /* Bronze */
+
+.rank-1 td:nth-child(2) { color: #ffd700; }
+.rank-2 td:nth-child(2) { color: #c0c0c0; }
+.rank-3 td:nth-child(2) { color: #cd7f32; }
+
+/* Score column */
+#leaderboard-table td:nth-child(3) {
+    color: var(--primary-color);
+}
+
+/* Rooms column */
+#leaderboard-table td:nth-child(4) {
+    color: var(--accent-color);
+}
+
+/* Champion badge for completed games */
+.champion-badge {
+    display: inline-block;
+    font-size: 8px;
+    padding: 2px 6px;
+    background: var(--accent-color);
+    color: var(--bg-dark);
+    margin-left: 5px;
+    animation: championPulse 1s ease-in-out infinite;
+}
+
+@keyframes championPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+#leaderboard-empty p,
+#leaderboard-loading p {
+    font-size: 10px;
+    color: var(--text-secondary);
+    padding: 30px;
+}

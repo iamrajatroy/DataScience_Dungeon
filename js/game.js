@@ -70,6 +70,18 @@ class Game {
         this.ui.onLogin = (email, password) => this.handleLogin(email, password);
         this.ui.onRegister = (username, email, password) => this.handleRegister(username, email, password);
         this.ui.onLogout = () => this.handleLogout();
+        this.ui.onShowLeaderboard = () => this.showLeaderboard();
+    }
+
+    async showLeaderboard() {
+        this.ui.showLeaderboardLoading();
+        try {
+            const leaderboardData = await window.api.getLeaderboard();
+            this.ui.showLeaderboard(leaderboardData);
+        } catch (error) {
+            console.error('Failed to fetch leaderboard:', error);
+            this.ui.showLeaderboard([]);
+        }
     }
 
     async init() {
@@ -178,28 +190,22 @@ class Game {
     }
 
     async continueGame() {
-        // Try to load saved state from server first, then localStorage
-        let loaded = false;
-
-        if (this.gameState.isOnline && this.gameState.user) {
-            try {
-                const progress = await window.api.getProgress();
-                if (progress && progress.current_room > 1) {
-                    await this.gameState.loadFromServer();
-                    loaded = true;
-                }
-            } catch (e) {
-                console.error('Failed to load from server:', e);
-            }
+        // Load saved state from server only
+        if (!this.gameState.isOnline || !this.gameState.user) {
+            console.warn('Cannot continue: not logged in or offline');
+            return;
         }
 
-        // Fallback to localStorage if server didn't have a valid save
-        if (!loaded) {
-            const hasLocalSave = this.gameState.loadFromStorage();
-            if (!hasLocalSave || this.gameState.currentRoom <= 1) {
-                console.warn('No valid save found');
+        try {
+            const progress = await window.api.getProgress();
+            if (!progress || progress.current_room <= 1) {
+                console.warn('No valid save found on server');
                 return;
             }
+            await this.gameState.loadFromServer();
+        } catch (e) {
+            console.error('Failed to load from server:', e);
+            return;
         }
 
         // Safety check: if loaded a dead save, treat as game over
@@ -451,14 +457,31 @@ class Game {
     async saveGame() {
         await this.gameState.save();
         this.ui.showSaveConfirmation();
+
+        // Pre-fetch leaderboard to keep it updated with latest scores
+        try {
+            const leaderboardData = await window.api.getLeaderboard();
+            console.log('[Game] Leaderboard updated after save');
+        } catch (e) {
+            console.error('[Game] Failed to update leaderboard:', e);
+        }
     }
 
-    quitToMenu() {
+    async quitToMenu() {
+        // Auto-save on quit
+        if (this.gameState.currentState === 'playing' || this.gameState.isPaused) {
+            await this.gameState.save();
+            console.log('[Game] Auto-saved on quit');
+        }
+
         this.running = false;
         this.gameState.isPaused = false;
         this.ui.hidePauseMenu();
         this.gameState.currentState = 'menu';
         this.ui.showScreen('mainMenu');
+
+        // Update continue button just in case
+        this.ui.updateContinueButton();
     }
 }
 

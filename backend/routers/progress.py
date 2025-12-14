@@ -78,11 +78,10 @@ async def update_progress(
     """Update game progress"""
     progress = db.query(GameProgress).filter(GameProgress.user_id == current_user.id).first()
     
+    # Create if not exists (Upsert)
     if not progress:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No game progress found"
-        )
+        progress = GameProgress(user_id=current_user.id)
+        db.add(progress)
     
     # Update fields if provided
     if progress_data.current_room is not None:

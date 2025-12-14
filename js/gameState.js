@@ -22,11 +22,6 @@ class GameState {
         this.currentState = 'menu'; // menu, playing, paused, gameOver, victory
     }
 
-    // Storage key for offline fallback
-    get storageKey() {
-        return 'dataScienceDungeon_progress';
-    }
-
     // ==================== OBSERVER PATTERN ====================
 
     subscribe(listener) {
@@ -45,7 +40,7 @@ class GameState {
         });
     }
 
-    // ==================== ONLINE/OFFLINE SYNC ====================
+    // ==================== SERVER STORAGE ====================
 
     async initialize() {
         // Check if API is available
@@ -60,16 +55,19 @@ class GameState {
             }
         }
 
-        // Load from appropriate source
+        // Load from server if logged in
         if (this.isOnline && this.user) {
             await this.loadFromServer();
-        } else {
-            this.loadFromStorage();
         }
     }
 
-    // Save to server (if online) or localStorage
+    // Save to server only
     async save() {
+        if (!this.isOnline || !this.user) {
+            console.warn('[GameState] Cannot save: not logged in or offline');
+            return false;
+        }
+
         const saveData = {
             current_room: this.currentRoom,
             brightness_level: this.health,
@@ -80,32 +78,14 @@ class GameState {
             game_completed: this.gameCompleted,
         };
 
-        if (this.isOnline && this.user) {
-            try {
-                await window.api.updateProgress(saveData);
-                console.log('Game saved to server');
-            } catch (e) {
-                console.error('Failed to save to server, saving locally:', e);
-                this.saveToStorage();
-            }
-        } else {
-            this.saveToStorage();
+        try {
+            await window.api.updateProgress(saveData);
+            console.log('[GameState] Saved to server');
+            return true;
+        } catch (e) {
+            console.error('[GameState] Failed to save to server:', e);
+            return false;
         }
-    }
-
-    saveToStorage() {
-        const saveData = {
-            currentRoom: this.currentRoom,
-            health: this.health,
-            score: this.score,
-            totalCorrect: this.totalCorrect,
-            totalIncorrect: this.totalIncorrect,
-            chestsOpened: this.chestsOpened,
-            gameCompleted: this.gameCompleted,
-            lastSaved: new Date().toISOString()
-        };
-        localStorage.setItem(this.storageKey, JSON.stringify(saveData));
-        console.log('[GameState] Saved to storage:', saveData);
     }
 
     // Load from server
@@ -133,76 +113,50 @@ class GameState {
                 this.chestsOpened = [];
             }
 
-            console.log('Game loaded from server:', data);
+            console.log('[GameState] Loaded from server:', data);
             this.notify(); // Update UI
             return true;
         } catch (e) {
-            console.error('Failed to load from server:', e);
-            return this.loadFromStorage();
+            console.error('[GameState] Failed to load from server:', e);
+            return false;
         }
-    }
-
-    // Load from localStorage (offline fallback)
-    loadFromStorage() {
-        const saved = localStorage.getItem(this.storageKey);
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                console.log('[GameState] Loading from storage (RAW):', data);
-
-                this.currentRoom = data.currentRoom || 1;
-                // Explicit check for undefined to allow 0
-                this.health = (data.health !== undefined) ? data.health : 100;
-                this.score = data.score || 0;
-                this.totalCorrect = data.totalCorrect || 0;
-                this.totalIncorrect = data.totalIncorrect || 0;
-                this.chestsOpened = data.chestsOpened || [];
-                this.gameCompleted = data.gameCompleted || false;
-                this.lastSaved = data.lastSaved || null;
-
-                console.log('[GameState] Loaded state:', {
-                    health: this.health,
-                    score: this.score,
-                    room: this.currentRoom
-                });
-                this.notify(); // Update UI
-                return true;
-            } catch (e) {
-                console.error('[GameState] Failed to load save:', e);
-                return false;
-            }
-        }
-        console.log('[GameState] No save found in storage');
-        return false;
     }
 
     async hasSavedGame() {
-        // User must be logged in to see continue button
-        if (!this.user) return false;
-
-        // Check server first if online
-        if (this.isOnline) {
-            try {
-                const progress = await window.api.getProgress();
-                if (progress && progress.current_room > 1) {
-                    return true;
-                }
-            } catch {
-                // Fall through to check localStorage
-            }
+        // User must be logged in and online
+        console.log('[GameState] hasSavedGame check:', { user: this.user, isOnline: this.isOnline });
+        if (!this.user || !this.isOnline) {
+            console.log('[GameState] hasSavedGame: No user or offline, returning false');
+            return false;
         }
 
-        // Also check localStorage for saves
-        const saved = localStorage.getItem(this.storageKey);
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                return data.currentRoom > 1;
-            } catch {
-                return false;
+        try {
+            const progress = await window.api.getProgress();
+
+            // Check if progress represents a started game
+            // Default: room=1, score=0, health=100, chests=[]
+            if (!progress) return false;
+
+            // Parse chest states if string
+            let chests = [];
+            if (progress.chest_states) {
+                try {
+                    chests = JSON.parse(progress.chest_states);
+                } catch { chests = []; }
             }
+
+            const hasProgress =
+                progress.current_room > 1 ||
+                progress.score > 0 ||
+                progress.brightness_level < 100 ||
+                (Array.isArray(chests) && chests.length > 0);
+
+            console.log('[GameState] hasSavedGame:', { progress, hasProgress });
+            return hasProgress;
+        } catch (e) {
+            console.error('[GameState] hasSavedGame error:', e);
+            return false;
         }
-        return false;
     }
 
     async clearSave() {
@@ -210,10 +164,9 @@ class GameState {
             try {
                 await window.api.deleteProgress();
             } catch (e) {
-                console.error('Failed to clear server progress:', e);
+                console.error('[GameState] Failed to clear server progress:', e);
             }
         }
-        localStorage.removeItem(this.storageKey);
     }
 
     // ==================== AUTH METHODS ====================
@@ -235,6 +188,7 @@ class GameState {
             await window.api.register(username, email, password);
             this.user = await window.api.checkAuth();
             this.isOnline = true;
+            await this.loadFromServer(); // Initialize progress for new user
             return { success: true };
         } catch (e) {
             return { success: false, error: e.message };
