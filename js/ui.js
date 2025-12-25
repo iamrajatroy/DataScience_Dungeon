@@ -88,7 +88,17 @@ class UIManager {
             leaderboardBody: document.getElementById('leaderboard-body'),
             leaderboardTable: document.getElementById('leaderboard-table'),
             leaderboardEmpty: document.getElementById('leaderboard-empty'),
-            leaderboardLoading: document.getElementById('leaderboard-loading')
+            leaderboardLoading: document.getElementById('leaderboard-loading'),
+
+            // Audio controls
+            musicToggleBtn: document.getElementById('music-toggle-btn'),
+            sfxToggleBtn: document.getElementById('sfx-toggle-btn'),
+
+            // Review answers
+            reviewAnswersBtn: document.getElementById('review-answers-btn'),
+            reviewModal: document.getElementById('review-modal'),
+            reviewCloseBtn: document.getElementById('review-close-btn'),
+            reviewContent: document.getElementById('review-content')
         };
 
         console.log('[UIManager] Elements cached:', {
@@ -121,6 +131,7 @@ class UIManager {
     setupEventListeners() {
         // Main menu buttons
         this.elements.newGameBtn.addEventListener('click', () => {
+            window.audioManager.playMenuSelect();
             if (!window.api.isAuthenticated()) {
                 this.showAuthModal('login');
                 this.showAuthError('You must be logged in to play!');
@@ -130,16 +141,19 @@ class UIManager {
         });
 
         this.elements.continueGameBtn.addEventListener('click', () => {
+            window.audioManager.playMenuSelect();
             if (this.onContinueGame) this.onContinueGame();
         });
 
         this.elements.howToPlayBtn.addEventListener('click', () => {
+            window.audioManager.playMenuSelect();
             this.showScreen('howToPlay');
         });
 
         // Leaderboard button
         if (this.elements.leaderboardBtn) {
             this.elements.leaderboardBtn.addEventListener('click', () => {
+                window.audioManager.playMenuSelect();
                 if (this.onShowLeaderboard) this.onShowLeaderboard();
             });
         }
@@ -150,9 +164,44 @@ class UIManager {
             });
         }
 
+        // Audio toggle buttons
+        if (this.elements.musicToggleBtn) {
+            this.elements.musicToggleBtn.addEventListener('click', () => {
+                const enabled = window.audioManager.toggleMusic();
+                this.elements.musicToggleBtn.classList.toggle('muted', !enabled);
+                this.elements.musicToggleBtn.textContent = enabled ? '🎵' : '🔇';
+                if (enabled) {
+                    window.audioManager.startMenuMusic();
+                }
+            });
+        }
+
+        if (this.elements.sfxToggleBtn) {
+            this.elements.sfxToggleBtn.addEventListener('click', () => {
+                window.audioManager.playMenuSelect(); // Play sound before disabling
+                const enabled = window.audioManager.toggleSFX();
+                this.elements.sfxToggleBtn.classList.toggle('muted', !enabled);
+                this.elements.sfxToggleBtn.textContent = enabled ? '🔊' : '🔈';
+            });
+        }
+
         this.elements.backToMenuBtn.addEventListener('click', () => {
             this.showScreen('mainMenu');
         });
+
+        // Review answers button (on victory screen)
+        if (this.elements.reviewAnswersBtn) {
+            this.elements.reviewAnswersBtn.addEventListener('click', () => {
+                window.audioManager.playMenuSelect();
+                this.showReviewModal();
+            });
+        }
+
+        if (this.elements.reviewCloseBtn) {
+            this.elements.reviewCloseBtn.addEventListener('click', () => {
+                this.hideReviewModal();
+            });
+        }
 
         // Auth buttons
         if (this.elements.loginBtn) {
@@ -625,6 +674,49 @@ class UIManager {
 
     hideLeaderboard() {
         this.elements.leaderboardModal.classList.add('hidden');
+    }
+
+    // Review Modal
+    showReviewModal() {
+        if (!this.answeredQuestions || this.answeredQuestions.length === 0) {
+            this.elements.reviewContent.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No questions to review.</p>';
+        } else {
+            this.elements.reviewContent.innerHTML = this.answeredQuestions.map((item, index) => `
+                <div class="review-item ${item.wasCorrect ? 'correct' : 'incorrect'}">
+                    <div class="review-question">
+                        <strong>Q${index + 1}:</strong> ${item.question}
+                    </div>
+                    <div class="review-answer">
+                        <span>Your Answer: <span class="your-answer">${item.userAnswer}</span></span>
+                        <span>Correct: <span class="correct-answer">${item.correctAnswer}</span></span>
+                    </div>
+                    <div class="review-result ${item.wasCorrect ? 'correct' : 'incorrect'}">
+                        ${item.wasCorrect ? '✅ CORRECT' : '❌ INCORRECT'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        this.elements.reviewModal.classList.remove('hidden');
+    }
+
+    hideReviewModal() {
+        this.elements.reviewModal.classList.add('hidden');
+    }
+
+    addAnsweredQuestion(question, userAnswer, wasCorrect) {
+        if (!this.answeredQuestions) {
+            this.answeredQuestions = [];
+        }
+        this.answeredQuestions.push({
+            question: question.question,
+            userAnswer: userAnswer,
+            correctAnswer: question.answer,
+            wasCorrect: wasCorrect
+        });
+    }
+
+    clearAnsweredQuestions() {
+        this.answeredQuestions = [];
     }
 }
 

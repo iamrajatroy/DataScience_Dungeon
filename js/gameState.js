@@ -133,26 +133,14 @@ class GameState {
         try {
             const progress = await window.api.getProgress();
 
-            // Check if progress represents a started game
-            // Default: room=1, score=0, health=100, chests=[]
+            // If a progress record exists at all, the game was started/saved
             if (!progress) return false;
 
-            // Parse chest states if string
-            let chests = [];
-            if (progress.chest_states) {
-                try {
-                    chests = JSON.parse(progress.chest_states);
-                } catch { chests = []; }
-            }
-
-            const hasProgress =
-                progress.current_room > 1 ||
-                progress.score > 0 ||
-                progress.brightness_level < 100 ||
-                (Array.isArray(chests) && chests.length > 0);
-
-            console.log('[GameState] hasSavedGame:', { progress, hasProgress });
-            return hasProgress;
+            // Check if progress has any activity (not just default empty state)
+            // OR check if progress.id exists (meaning it was explicitly saved)
+            // For simplicity: any progress record = saveable game
+            console.log('[GameState] hasSavedGame: progress exists, returning true');
+            return true;
         } catch (e) {
             console.error('[GameState] hasSavedGame error:', e);
             return false;

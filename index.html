@@ -39,6 +39,13 @@
                     <button id="leaderboard-btn" class="menu-btn">LEADERBOARD</button>
                     <button id="how-to-play-btn" class="menu-btn">HOW TO PLAY</button>
                 </div>
+
+                <!-- Audio Controls -->
+                <div class="audio-controls">
+                    <button id="music-toggle-btn" class="audio-btn" title="Toggle Music">🎵</button>
+                    <button id="sfx-toggle-btn" class="audio-btn" title="Toggle Sound Effects">🔊</button>
+                </div>
+
                 <p class="copyright">© 2025 Data Science Dungeon</p>
             </div>
         </div>
@@ -235,18 +242,37 @@
         <!-- Victory Screen -->
         <div id="victory" class="screen">
             <div class="modal-content victory-content">
-                <h1 class="victory-title">VICTORY!</h1>
+                <h1 class="victory-title">🎉 VICTORY! 🎉</h1>
                 <div class="trophy-icon">🏆</div>
-                <p class="victory-message">You have conquered the Data Science Dungeon!</p>
+                <p class="victory-message">Congratulations, Champion!</p>
+                <p class="victory-submessage">You have conquered the Data Science Dungeon!</p>
                 <div class="final-stats">
-                    <p>All 10 Rooms Cleared!</p>
-                    <p>Questions Answered: <span id="victory-correct">0</span></p>
-                    <p>Final Score: <span id="victory-score">0</span></p>
-                    <p>Health Remaining: <span id="victory-health">0</span>%</p>
+                    <p>🏰 All 10 Rooms Cleared!</p>
+                    <p>✅ Questions Answered: <span id="victory-correct">0</span></p>
+                    <p>⭐ Final Score: <span id="victory-score">0</span></p>
+                    <p>💚 Health Remaining: <span id="victory-health">0</span>%</p>
                 </div>
                 <div class="menu-buttons">
-                    <button id="play-again-btn" class="menu-btn">PLAY AGAIN</button>
-                    <button id="menu-btn-victory" class="menu-btn">MAIN MENU</button>
+                    <button id="review-answers-btn" class="menu-btn">📋 REVIEW ANSWERS</button>
+                    <button id="play-again-btn" class="menu-btn">🔄 PLAY AGAIN</button>
+                    <button id="menu-btn-victory" class="menu-btn">🏠 MAIN MENU</button>
+                </div>
+                <div class="credits">
+                    <p class="credits-thanks">Thank you for Playing!</p>
+                    <p class="credits-wish">Wish you all the best</p>
+                    <p class="credits-author">— From Rajat Roy</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Answers Modal -->
+        <div id="review-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-box review-box">
+                <button id="review-close-btn" class="close-btn">×</button>
+                <h2>📋 YOUR ANSWERS</h2>
+                <div id="review-content">
+                    <!-- Populated dynamically -->
                 </div>
             </div>
         </div>
@@ -265,14 +291,15 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="js/api.js?v=34"></script>
-    <script src="js/questions.js?v=34"></script>
-    <script src="js/gameState.js?v=34"></script>
-    <script src="js/player.js?v=34"></script>
-    <script src="js/chest.js?v=34"></script>
-    <script src="js/room.js?v=34"></script>
-    <script src="js/ui.js?v=34"></script>
-    <script src="js/game.js?v=34"></script>
+    <script src="js/audio.js?v=35"></script>
+    <script src="js/api.js?v=35"></script>
+    <script src="js/questions.js?v=35"></script>
+    <script src="js/gameState.js?v=35"></script>
+    <script src="js/player.js?v=35"></script>
+    <script src="js/chest.js?v=35"></script>
+    <script src="js/room.js?v=35"></script>
+    <script src="js/ui.js?v=35"></script>
+    <script src="js/game.js?v=35"></script>
 </body>
 
 </html>

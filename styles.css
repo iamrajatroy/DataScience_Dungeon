@@ -46,7 +46,7 @@ body {
     height: 700px;
     background: var(--bg-dark);
     border: 4px solid var(--border-color);
-    box-shadow: 
+    box-shadow:
         0 0 0 4px var(--bg-darker),
         0 0 40px rgba(74, 222, 128, 0.2),
         inset 0 0 100px rgba(0, 0, 0, 0.5);
@@ -86,7 +86,7 @@ body {
     display: block;
     font-size: 28px;
     letter-spacing: 4px;
-    text-shadow: 
+    text-shadow:
         4px 4px 0 var(--bg-darker),
         -2px -2px 0 var(--secondary-color);
     animation: titlePulse 2s ease-in-out infinite;
@@ -96,14 +96,21 @@ body {
     font-size: 36px;
     color: var(--primary-color);
     margin-top: 10px;
-    text-shadow: 
+    text-shadow:
         4px 4px 0 var(--bg-darker),
         0 0 30px var(--primary-color);
 }
 
 @keyframes titlePulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
 }
 
 .menu-buttons {
@@ -234,7 +241,8 @@ body {
     margin-bottom: 5px;
 }
 
-#room-indicator, #score-indicator {
+#room-indicator,
+#score-indicator {
     min-width: 100px;
 }
 
@@ -280,7 +288,7 @@ body {
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
 }
 
 #health-percent {
@@ -314,8 +322,13 @@ body {
 }
 
 @keyframes promptBounce {
-    0% { transform: translateX(-50%) translateY(0); }
-    100% { transform: translateX(-50%) translateY(-5px); }
+    0% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-5px);
+    }
 }
 
 .hidden {
@@ -357,8 +370,15 @@ body {
 }
 
 @keyframes modalSlideIn {
-    0% { transform: translateY(-20px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .modal-box h2 {
@@ -372,7 +392,8 @@ body {
     width: 700px;
 }
 
-.difficulty-badge, .topic-badge {
+.difficulty-badge,
+.topic-badge {
     display: inline-block;
     font-size: 8px;
     padding: 5px 10px;
@@ -465,14 +486,31 @@ body {
 }
 
 @keyframes correctPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 .option-letter {
@@ -537,8 +575,15 @@ body {
 }
 
 @keyframes floatSkull {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(5deg); }
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
 }
 
 .game-over-message {
@@ -566,9 +611,19 @@ body {
 }
 
 @keyframes victoryBounce {
-    0% { transform: scale(0.5); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .victory-title {
@@ -580,10 +635,21 @@ body {
 }
 
 @keyframes rainbowText {
-    0% { color: var(--primary-color); }
-    33% { color: var(--accent-color); }
-    66% { color: var(--secondary-color); }
-    100% { color: var(--primary-color); }
+    0% {
+        color: var(--primary-color);
+    }
+
+    33% {
+        color: var(--accent-color);
+    }
+
+    66% {
+        color: var(--secondary-color);
+    }
+
+    100% {
+        color: var(--primary-color);
+    }
 }
 
 .trophy-icon {
@@ -593,14 +659,123 @@ body {
 }
 
 @keyframes trophySpin {
-    0%, 100% { transform: rotateY(0deg); }
-    50% { transform: rotateY(360deg); }
+
+    0%,
+    100% {
+        transform: rotateY(0deg);
+    }
+
+    50% {
+        transform: rotateY(360deg);
+    }
 }
 
 .victory-message {
+    font-size: 14px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.victory-submessage {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+}
+
+/* Credits */
+.credits {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-color);
+    animation: fadeInUp 1s ease 0.5s both;
+}
+
+.credits-thanks {
     font-size: 12px;
     color: var(--primary-color);
-    margin-bottom: 30px;
+    margin-bottom: 8px;
+    animation: rainbowText 3s linear infinite;
+}
+
+.credits-wish {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.credits-author {
+    font-size: 11px;
+    color: var(--accent-color);
+    font-style: italic;
+}
+
+/* Review Modal */
+.review-box {
+    width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#review-content {
+    text-align: left;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.review-item {
+    background: var(--bg-darker);
+    border: 2px solid var(--border-color);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.review-item.correct {
+    border-color: var(--primary-color);
+}
+
+.review-item.incorrect {
+    border-color: var(--danger-color);
+}
+
+.review-question {
+    font-size: 10px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.review-answer {
+    font-size: 9px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.review-answer span {
+    color: var(--text-secondary);
+}
+
+.review-answer .your-answer {
+    color: var(--accent-color);
+}
+
+.review-answer .correct-answer {
+    color: var(--primary-color);
+}
+
+.review-result {
+    font-size: 10px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.review-result.correct {
+    color: var(--primary-color);
+}
+
+.review-result.incorrect {
+    color: var(--danger-color);
 }
 
 /* Room Complete */
@@ -610,8 +785,13 @@ body {
 }
 
 @keyframes celebratePulse {
-    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-    100% { box-shadow: 0 0 30px 10px rgba(245, 158, 11, 0.2); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 30px 10px rgba(245, 158, 11, 0.2);
+    }
 }
 
 .star-icon {
@@ -621,8 +801,15 @@ body {
 }
 
 @keyframes starSpin {
-    0%, 100% { transform: rotate(-10deg) scale(1); }
-    50% { transform: rotate(10deg) scale(1.1); }
+
+    0%,
+    100% {
+        transform: rotate(-10deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(10deg) scale(1.1);
+    }
 }
 
 .next-room-hint {
@@ -650,8 +837,15 @@ body {
 }
 
 @keyframes screenFlash {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(1.5); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.5);
+    }
 }
 
 .screen-shake {
@@ -659,16 +853,39 @@ body {
 }
 
 @keyframes screenShake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-5px); }
-    40% { transform: translateX(5px); }
-    60% { transform: translateX(-3px); }
-    80% { transform: translateX(3px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-5px);
+    }
+
+    40% {
+        transform: translateX(5px);
+    }
+
+    60% {
+        transform: translateX(-3px);
+    }
+
+    80% {
+        transform: translateX(3px);
+    }
 }
 
 @keyframes fadeInUp {
-    0% { transform: translateY(20px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Responsive adjustments */
@@ -678,7 +895,7 @@ body {
         height: 100vh;
         border: none;
     }
-    
+
     #game-canvas {
         width: 100%;
         height: calc(100% - 70px);
@@ -875,13 +1092,33 @@ body {
     font-weight: bold;
 }
 
-.rank-1 td:first-child { color: #ffd700; } /* Gold */
-.rank-2 td:first-child { color: #c0c0c0; } /* Silver */
-.rank-3 td:first-child { color: #cd7f32; } /* Bronze */
+.rank-1 td:first-child {
+    color: #ffd700;
+}
 
-.rank-1 td:nth-child(2) { color: #ffd700; }
-.rank-2 td:nth-child(2) { color: #c0c0c0; }
-.rank-3 td:nth-child(2) { color: #cd7f32; }
+/* Gold */
+.rank-2 td:first-child {
+    color: #c0c0c0;
+}
+
+/* Silver */
+.rank-3 td:first-child {
+    color: #cd7f32;
+}
+
+/* Bronze */
+
+.rank-1 td:nth-child(2) {
+    color: #ffd700;
+}
+
+.rank-2 td:nth-child(2) {
+    color: #c0c0c0;
+}
+
+.rank-3 td:nth-child(2) {
+    color: #cd7f32;
+}
 
 /* Score column */
 #leaderboard-table td:nth-child(3) {
@@ -905,8 +1142,15 @@ body {
 }
 
 @keyframes championPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
 }
 
 #leaderboard-empty p,
@@ -914,4 +1158,43 @@ body {
     font-size: 10px;
     color: var(--text-secondary);
     padding: 30px;
+}
+
+/* ==================== AUDIO CONTROLS ==================== */
+
+.audio-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.audio-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audio-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(74, 222, 128, 0.1);
+    transform: scale(1.1);
+}
+
+.audio-btn.muted {
+    opacity: 0.4;
+    border-color: var(--danger-color);
+}
+
+.audio-btn.muted:hover {
+    border-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.1);
 }

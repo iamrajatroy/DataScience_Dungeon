@@ -116,8 +116,9 @@ class Game {
 
         console.log('[Game] Initialization complete.');
 
-        // Show main menu
+        // Show main menu and start menu music
         this.ui.showScreen('mainMenu');
+        window.audioManager.startMenuMusic();
 
         console.log('Data Science Dungeon initialized!');
         console.log('Questions loaded:', this.questionManager.questions.length);
@@ -162,8 +163,9 @@ class Game {
         await this.gameState.clearSave();
         this.gameState.currentState = 'playing';
 
-        // Reset question manager
+        // Reset question manager and answered questions tracking
         this.questionManager.reset();
+        this.ui.clearAnsweredQuestions();
 
         // If online, create new progress
         if (this.gameState.isOnline && this.gameState.user) {
@@ -173,6 +175,10 @@ class Game {
                 console.error('Failed to create progress on server:', e);
             }
         }
+
+        // Start game music
+        window.audioManager.stopMusic();
+        window.audioManager.startGameMusic();
 
         // Initialize game objects
         this.player = new Player(this.canvas);
@@ -198,10 +204,21 @@ class Game {
 
         try {
             const progress = await window.api.getProgress();
-            if (!progress || progress.current_room <= 1) {
+            if (!progress) {
                 console.warn('No valid save found on server');
                 return;
             }
+
+            // Parse chest states to check for progress
+            let chests = [];
+            if (progress.chest_states) {
+                try {
+                    chests = JSON.parse(progress.chest_states);
+                } catch { chests = []; }
+            }
+
+            // Allow any saved progress to be loaded (game was started)
+
             await this.gameState.loadFromServer();
         } catch (e) {
             console.error('Failed to load from server:', e);
@@ -218,6 +235,10 @@ class Game {
         }
 
         this.gameState.currentState = 'playing';
+
+        // Start game music
+        window.audioManager.stopMusic();
+        window.audioManager.startGameMusic();
 
         // Initialize game objects with saved room
         this.player = new Player(this.canvas);
@@ -295,6 +316,9 @@ class Game {
         this.activeChest = chest;
         chest.open();
 
+        // Play chest open sound
+        window.audioManager.playChestOpen();
+
         // Get a question for this chest (now async)
         const question = await this.questionManager.getQuestion(
             this.gameState.currentRoom,
@@ -326,6 +350,10 @@ class Game {
         try {
             if (wasCorrect) {
                 console.log('[Game] Answer CORRECT. Processing chest completion...');
+
+                // Play correct answer sound
+                window.audioManager.playCorrect();
+
                 // Mark chest as complete
                 this.activeChest.complete();
                 this.gameState.openChest(this.gameState.currentRoom, this.activeChest.chestNumber); // Sync with state
@@ -344,6 +372,7 @@ class Game {
 
                 if (isRoomComplete) {
                     console.log('[Game] ROOM COMPLETE! Saving and showing modal...');
+                    window.audioManager.playRoomComplete();
                     await this.gameState.save();
                     setTimeout(() => {
                         console.log('[Game] Calling ui.showRoomComplete()');
@@ -352,6 +381,10 @@ class Game {
                 }
             } else {
                 console.log('[Game] Answer INCORRECT. Reducing health...');
+
+                // Play incorrect answer sound
+                window.audioManager.playIncorrect();
+
                 // Handle incorrect answer
                 await this.gameState.answerIncorrect(questionId, roomNumber);
                 this.updateBrightnessOverlay();
@@ -363,6 +396,8 @@ class Game {
                 if (this.gameState.isGameOver) {
                     console.log('[Game] GAME OVER TRIGGERED! Stopping loop.');
                     this.running = false;
+                    window.audioManager.stopMusic();
+                    window.audioManager.playGameOver();
                     setTimeout(() => {
                         console.log('[Game] Calling ui.showGameOver()');
                         this.ui.showGameOver();
@@ -401,6 +436,7 @@ class Game {
             // Check for space key to enter portal
             if (this.player.keys.space && !this.spacePressed) {
                 this.spacePressed = true;
+                window.audioManager.playPortal();
                 this.enterPortal();
             }
         }
@@ -412,6 +448,14 @@ class Game {
             // Victory!
             this.gameState.currentState = 'victory';
             this.running = false;
+            window.audioManager.stopMusic();
+            window.audioManager.playVictory();
+
+            // Start cheerful victory music after fanfare
+            setTimeout(() => {
+                window.audioManager.startVictoryMusic();
+            }, 1000);
+
             await this.gameState.clearSave(); // Clear save on victory
             this.ui.showVictory();
             return;
@@ -479,6 +523,10 @@ class Game {
         this.ui.hidePauseMenu();
         this.gameState.currentState = 'menu';
         this.ui.showScreen('mainMenu');
+
+        // Start menu music
+        window.audioManager.stopMusic();
+        window.audioManager.startMenuMusic();
 
         // Update continue button just in case
         this.ui.updateContinueButton();

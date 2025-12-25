@@ -10,6 +10,7 @@ echo "========================================"
 # Start Backend
 echo "stats: Starting Backend Server (Port 8080)..."
 cd backend
+source venv/bin/activate
 python3 -m uvicorn main:app --reload --port 8080 &
 BACKEND_PID=$!
 cd ..
