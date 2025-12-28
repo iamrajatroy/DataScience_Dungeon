@@ -112,7 +112,11 @@ class UIManager {
             reviewQuestionsList: document.getElementById('review-questions-list'),
             reviewTotalCorrect: document.getElementById('review-total-correct'),
             reviewTotalIncorrect: document.getElementById('review-total-incorrect'),
-            reviewAccuracy: document.getElementById('review-accuracy')
+            reviewTotalIncorrect: document.getElementById('review-total-incorrect'),
+            reviewAccuracy: document.getElementById('review-accuracy'),
+
+            // Mobile Controls
+            mobileEscBtn: document.getElementById('mobile-esc-btn')
         };
 
         console.log('[UIManager] Elements cached:', {
@@ -360,14 +364,25 @@ class UIManager {
             }
         });
 
-        // Keyboard shortcut for pause
+        // Mobile ESC Button
+        if (this.elements.mobileEscBtn) {
+            this.elements.mobileEscBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleEscape();
+            });
+
+            this.elements.mobileEscBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleEscape();
+            }, { passive: false });
+        }
+
+        // Global Keyboard shortcut for Escape
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.gameState.currentState === 'playing') {
-                if (this.gameState.isPaused) {
-                    if (this.onResume) this.onResume();
-                } else {
-                    this.showPauseMenu();
-                }
+            if (e.key === 'Escape') {
+                this.handleEscape();
             }
         });
     }
@@ -940,6 +955,47 @@ class UIManager {
 
     clearAnsweredQuestions() {
         this.answeredQuestions = [];
+    }
+    handleEscape() {
+        // Close modals if open
+        if (this.elements.leaderboardModal && !this.elements.leaderboardModal.classList.contains('hidden')) {
+            this.hideLeaderboard();
+            return;
+        }
+
+        if (this.elements.authModal && !this.elements.authModal.classList.contains('hidden')) {
+            this.hideAuthModal();
+            return;
+        }
+
+        if (this.elements.victoryReviewModal && !this.elements.victoryReviewModal.classList.contains('hidden')) {
+            this.hideVictoryReviewModal();
+            return;
+        }
+
+        if (this.elements.reviewModal && !this.elements.reviewModal.classList.contains('hidden')) {
+            this.elements.reviewModal.classList.add('hidden');
+            return;
+        }
+
+        // Return to menu from screens
+        if (this.currentScreen === 'howToPlay') {
+            this.showScreen('mainMenu');
+            return;
+        }
+
+        // Pause/Resume game logic
+        if (this.gameState.currentState === 'playing' || this.gameState.currentState === 'paused') {
+            if (this.gameState.isPaused) {
+                if (this.onResume) this.onResume();
+            } else {
+                // Only pause if no other overlay is active
+                if (this.elements.questionModal.classList.contains('hidden') &&
+                    this.elements.roomComplete.classList.contains('hidden')) {
+                    this.showPauseMenu();
+                }
+            }
+        }
     }
 }
 
