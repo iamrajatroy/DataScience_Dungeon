@@ -78,6 +78,7 @@ class UIManager {
             finalCorrect: document.getElementById('final-correct'),
             finalScore: document.getElementById('final-score'),
             victoryCorrect: document.getElementById('victory-correct'),
+            victoryIncorrect: document.getElementById('victory-incorrect'),
             victoryScore: document.getElementById('victory-score'),
             victoryHealth: document.getElementById('victory-health'),
 
@@ -94,11 +95,24 @@ class UIManager {
             musicToggleBtn: document.getElementById('music-toggle-btn'),
             sfxToggleBtn: document.getElementById('sfx-toggle-btn'),
 
-            // Review answers
+            // Review answers (legacy)
             reviewAnswersBtn: document.getElementById('review-answers-btn'),
             reviewModal: document.getElementById('review-modal'),
             reviewCloseBtn: document.getElementById('review-close-btn'),
-            reviewContent: document.getElementById('review-content')
+            reviewContent: document.getElementById('review-content'),
+
+            // Victory Review Modal
+            victoryReviewBtn: document.getElementById('victory-review-btn'),
+            victoryReviewModal: document.getElementById('victory-review-modal'),
+            victoryReviewCloseBtn: document.getElementById('victory-review-close-btn'),
+            victoryReviewDoneBtn: document.getElementById('victory-review-done-btn'),
+            confettiContainer: document.getElementById('confetti-container'),
+            strongAreas: document.getElementById('strong-areas'),
+            weakAreas: document.getElementById('weak-areas'),
+            reviewQuestionsList: document.getElementById('review-questions-list'),
+            reviewTotalCorrect: document.getElementById('review-total-correct'),
+            reviewTotalIncorrect: document.getElementById('review-total-incorrect'),
+            reviewAccuracy: document.getElementById('review-accuracy')
         };
 
         console.log('[UIManager] Elements cached:', {
@@ -284,13 +298,33 @@ class UIManager {
         });
 
         // Victory buttons
-        this.elements.playAgainBtn.addEventListener('click', () => {
-            if (this.onNewGame) this.onNewGame();
-        });
+        if (this.elements.victoryReviewBtn) {
+            this.elements.victoryReviewBtn.addEventListener('click', () => {
+                window.audioManager.playMenuSelect();
+                this.showVictoryReviewModal();
+            });
+        }
 
         this.elements.menuBtnVictory.addEventListener('click', () => {
+            window.audioManager.playMenuSelect();
+            this.stopConfetti();
+            window.audioManager.stopMusic();
+            window.audioManager.startMenuMusic();
             this.showScreen('mainMenu');
         });
+
+        // Victory Review Modal close buttons
+        if (this.elements.victoryReviewCloseBtn) {
+            this.elements.victoryReviewCloseBtn.addEventListener('click', () => {
+                this.hideVictoryReviewModal();
+            });
+        }
+        if (this.elements.victoryReviewDoneBtn) {
+            this.elements.victoryReviewDoneBtn.addEventListener('click', () => {
+                window.audioManager.playMenuSelect();
+                this.hideVictoryReviewModal();
+            });
+        }
 
         // Room complete
         this.elements.continueRoomBtn.addEventListener('click', () => {
@@ -482,6 +516,12 @@ class UIManager {
     showInteractionPrompt(show) {
         if (show) {
             this.elements.interactionPrompt.classList.remove('hidden');
+            // Update text for touch devices
+            const promptText = this.elements.interactionPrompt.querySelector('.prompt-text');
+            if (promptText) {
+                const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                promptText.textContent = isTouchDevice ? 'TAP ⚡ to interact' : 'Press SPACE to open chest';
+            }
         } else {
             this.elements.interactionPrompt.classList.add('hidden');
         }
@@ -537,6 +577,13 @@ class UIManager {
             }
         });
 
+        // Track this answered question for review
+        this.addAnsweredQuestion(
+            this.currentQuestion,
+            this.currentQuestion.options[option],
+            isCorrect
+        );
+
         // Show feedback
         this.elements.answerFeedback.classList.remove('hidden');
         this.elements.feedbackText.textContent = isCorrect ? '✓ CORRECT!' : '✗ INCORRECT!';
@@ -586,10 +633,184 @@ class UIManager {
     }
 
     showVictory() {
-        this.elements.victoryCorrect.textContent = this.gameState.totalCorrect.toString();
+        // Calculate stats
+        const totalCorrect = this.gameState.totalCorrect;
+        const totalWrong = this.gameState.totalWrong || 0;
+
+        // Update victory stats
+        this.elements.victoryCorrect.textContent = totalCorrect.toString();
+        if (this.elements.victoryIncorrect) {
+            this.elements.victoryIncorrect.textContent = totalWrong.toString();
+        }
         this.elements.victoryScore.textContent = this.gameState.score.toString();
         this.elements.victoryHealth.textContent = this.gameState.health.toString();
+
+        // Show screen first
         this.showScreen('victory');
+
+        // Start confetti animation
+        this.startConfetti();
+    }
+
+    // ==================== CONFETTI ====================
+
+    startConfetti() {
+        const container = this.elements.confettiContainer;
+        if (!container) return;
+
+        // Clear any existing confetti
+        container.innerHTML = '';
+
+        const colors = ['#4ade80', '#f59e0b', '#8b5cf6', '#ef4444', '#3b82f6', '#ec4899'];
+        const shapes = ['square', 'circle', 'triangle'];
+
+        // Create confetti pieces
+        const createConfetti = () => {
+            for (let i = 0; i < 15; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = `confetti ${shapes[Math.floor(Math.random() * shapes.length)]}`;
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confetti.style.animationDuration = `${3 + Math.random() * 2}s`;
+                container.appendChild(confetti);
+
+                // Remove after animation
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        };
+
+        // Initial burst
+        createConfetti();
+
+        // Continue creating confetti
+        this.confettiInterval = setInterval(createConfetti, 800);
+    }
+
+    stopConfetti() {
+        if (this.confettiInterval) {
+            clearInterval(this.confettiInterval);
+            this.confettiInterval = null;
+        }
+        if (this.elements.confettiContainer) {
+            this.elements.confettiContainer.innerHTML = '';
+        }
+    }
+
+    // ==================== VICTORY REVIEW MODAL ====================
+
+    showVictoryReviewModal() {
+        const modal = this.elements.victoryReviewModal;
+        if (!modal) return;
+
+        // Calculate stats
+        const totalCorrect = this.gameState.totalCorrect || 0;
+        const totalWrong = this.gameState.totalWrong || 0;
+        const total = totalCorrect + totalWrong;
+        const accuracy = total > 0 ? Math.round((totalCorrect / total) * 100) : 0;
+
+        // Update stats
+        if (this.elements.reviewTotalCorrect) {
+            this.elements.reviewTotalCorrect.textContent = totalCorrect;
+        }
+        if (this.elements.reviewTotalIncorrect) {
+            this.elements.reviewTotalIncorrect.textContent = totalWrong;
+        }
+        if (this.elements.reviewAccuracy) {
+            this.elements.reviewAccuracy.textContent = `${accuracy}%`;
+        }
+
+        // Analyze topic performance
+        this.populateTopicAnalysis();
+
+        // Populate questions list
+        this.populateReviewQuestions();
+
+        modal.classList.remove('hidden');
+    }
+
+    hideVictoryReviewModal() {
+        if (this.elements.victoryReviewModal) {
+            this.elements.victoryReviewModal.classList.add('hidden');
+        }
+    }
+
+    populateTopicAnalysis() {
+        const strongAreas = this.elements.strongAreas;
+        const weakAreas = this.elements.weakAreas;
+
+        if (!strongAreas || !weakAreas || !this.answeredQuestions) {
+            if (strongAreas) strongAreas.innerHTML = '<span class="no-topics">No data available</span>';
+            if (weakAreas) weakAreas.innerHTML = '<span class="no-topics">No curses detected</span>';
+            return;
+        }
+
+        // Calculate topic performance
+        const topicStats = {};
+        this.answeredQuestions.forEach(q => {
+            const topic = q.topic || 'General';
+            if (!topicStats[topic]) {
+                topicStats[topic] = { correct: 0, total: 0 };
+            }
+            topicStats[topic].total++;
+            if (q.wasCorrect) topicStats[topic].correct++;
+        });
+
+        // Separate into strong (>=70%) and weak (<50%) areas
+        const strong = [];
+        const weak = [];
+
+        Object.entries(topicStats).forEach(([topic, stats]) => {
+            const percent = Math.round((stats.correct / stats.total) * 100);
+            if (percent >= 70) {
+                strong.push({ topic, percent, correct: stats.correct, total: stats.total });
+            } else if (percent < 50) {
+                weak.push({ topic, percent, correct: stats.correct, total: stats.total });
+            }
+        });
+
+        // Render strong areas
+        if (strong.length > 0) {
+            strongAreas.innerHTML = strong.map(s =>
+                `<span class="topic-badge">${s.topic} <span class="topic-score">${s.correct}/${s.total}</span></span>`
+            ).join('');
+        } else {
+            strongAreas.innerHTML = '<span class="no-topics">Keep practicing, hero!</span>';
+        }
+
+        // Render weak areas
+        if (weak.length > 0) {
+            weakAreas.innerHTML = weak.map(w =>
+                `<span class="topic-badge">${w.topic} <span class="topic-score">${w.correct}/${w.total}</span></span>`
+            ).join('');
+        } else {
+            weakAreas.innerHTML = '<span class="no-topics">No curses detected - well done!</span>';
+        }
+    }
+
+    populateReviewQuestions() {
+        const container = this.elements.reviewQuestionsList;
+        if (!container) return;
+
+        if (!this.answeredQuestions || this.answeredQuestions.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-size: 9px;">No questions to review</p>';
+            return;
+        }
+
+        container.innerHTML = this.answeredQuestions.map((item, index) => `
+            <div class="review-item ${item.wasCorrect ? 'correct' : 'incorrect'}">
+                <div class="review-question">
+                    <strong>Q${index + 1}:</strong> ${item.question}
+                </div>
+                <div class="review-answer">
+                    <span>Your Answer: <span class="your-answer">${item.userAnswer}</span></span>
+                    <span>Correct: <span class="correct-answer">${item.correctAnswer}</span></span>
+                </div>
+                <div class="review-result ${item.wasCorrect ? 'correct' : 'incorrect'}">
+                    ${item.wasCorrect ? '⚔️ VICTORY' : '💀 DEFEATED'}
+                </div>
+            </div>
+        `).join('');
     }
 
     showSaveConfirmation() {
@@ -711,7 +932,9 @@ class UIManager {
             question: question.question,
             userAnswer: userAnswer,
             correctAnswer: question.answer,
-            wasCorrect: wasCorrect
+            wasCorrect: wasCorrect,
+            topic: question.topic || 'General',
+            difficulty: question.difficulty || 'easy'
         });
     }
 

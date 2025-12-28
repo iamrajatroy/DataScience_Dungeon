@@ -22,6 +22,11 @@ class GameState {
         this.currentState = 'menu'; // menu, playing, paused, gameOver, victory
     }
 
+    // Getter for totalWrong (alias for totalIncorrect)
+    get totalWrong() {
+        return this.totalIncorrect;
+    }
+
     // ==================== OBSERVER PATTERN ====================
 
     subscribe(listener) {

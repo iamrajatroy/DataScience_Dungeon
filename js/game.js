@@ -371,13 +371,25 @@ class Game {
                 console.log(`[Game] Room Complete Check: ${isRoomComplete}`);
 
                 if (isRoomComplete) {
-                    console.log('[Game] ROOM COMPLETE! Saving and showing modal...');
-                    window.audioManager.playRoomComplete();
-                    await this.gameState.save();
-                    setTimeout(() => {
-                        console.log('[Game] Calling ui.showRoomComplete()');
-                        this.ui.showRoomComplete(this.gameState.currentRoom);
-                    }, 500);
+                    console.log(`[Game] Room Complete! Current Room: ${this.gameState.currentRoom}`);
+
+                    if (this.gameState.currentRoom >= 10) {
+                        // Triggery victory immediately for last room
+                        console.log('[Game] VICTORY! Triggering end game sequence...');
+                        await this.gameState.save();
+                        setTimeout(() => {
+                            this.enterPortal();
+                        }, 500);
+                    } else {
+                        // Normal room completion
+                        console.log('[Game] saving and showing modal...');
+                        window.audioManager.playRoomComplete();
+                        await this.gameState.save();
+                        setTimeout(() => {
+                            console.log('[Game] Calling ui.showRoomComplete()');
+                            this.ui.showRoomComplete(this.gameState.currentRoom);
+                        }, 500);
+                    }
                 }
             } else {
                 console.log('[Game] Answer INCORRECT. Reducing health...');

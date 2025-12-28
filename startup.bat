@@ -9,7 +9,7 @@ start "Backend Server" cmd /k "cd backend && call .\venv\Scripts\activate.bat &&
 timeout /t 2 /nobreak >nul
 
 echo stats: Starting Frontend Server (Port 8000)...
-start "Frontend Server" cmd /k "python -m http.server 8000"
+start "Frontend Server" cmd /k "npx -y http-server -p 8000 --cors"
 
 echo ========================================
 echo ✅ Game is Running!

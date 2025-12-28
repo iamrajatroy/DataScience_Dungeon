@@ -181,6 +181,19 @@
             <div id="interaction-prompt" class="hidden">
                 <span class="prompt-text">Press SPACE to open chest</span>
             </div>
+
+            <!-- Touch Controls (Mobile/Tablet) -->
+            <div id="touch-controls" class="touch-controls">
+                <div class="dpad">
+                    <button class="dpad-btn dpad-up" data-key="up" aria-label="Move Up">▲</button>
+                    <div class="dpad-middle">
+                        <button class="dpad-btn dpad-left" data-key="left" aria-label="Move Left">◀</button>
+                        <button class="dpad-btn dpad-right" data-key="right" aria-label="Move Right">▶</button>
+                    </div>
+                    <button class="dpad-btn dpad-down" data-key="down" aria-label="Move Down">▼</button>
+                </div>
+                <button class="action-btn" id="touch-action-btn" aria-label="Action">⚡</button>
+            </div>
         </div>
 
         <!-- Question Modal -->
@@ -241,27 +254,80 @@
 
         <!-- Victory Screen -->
         <div id="victory" class="screen">
+            <!-- Confetti Container -->
+            <div id="confetti-container" class="confetti-container"></div>
+
             <div class="modal-content victory-content">
                 <h1 class="victory-title">🎉 VICTORY! 🎉</h1>
                 <div class="trophy-icon">🏆</div>
                 <p class="victory-message">Congratulations, Champion!</p>
                 <p class="victory-submessage">You have conquered the Data Science Dungeon!</p>
-                <div class="final-stats">
+
+                <div class="final-stats victory-stats">
                     <p>🏰 All 10 Rooms Cleared!</p>
-                    <p>✅ Questions Answered: <span id="victory-correct">0</span></p>
+                    <p>✅ Questions Mastered: <span id="victory-correct">0</span></p>
+                    <p>❌ Wrong Answers: <span id="victory-incorrect">0</span></p>
                     <p>⭐ Final Score: <span id="victory-score">0</span></p>
                     <p>💚 Health Remaining: <span id="victory-health">0</span>%</p>
                 </div>
-                <div class="menu-buttons">
-                    <button id="review-answers-btn" class="menu-btn">📋 REVIEW ANSWERS</button>
-                    <button id="play-again-btn" class="menu-btn">🔄 PLAY AGAIN</button>
-                    <button id="menu-btn-victory" class="menu-btn">🏠 MAIN MENU</button>
+
+                <div class="menu-buttons victory-buttons">
+                    <button id="victory-review-btn" class="menu-btn">📊 REVIEW JOURNEY</button>
+                    <button id="menu-btn-victory" class="menu-btn victory-end-btn">🏠 END ADVENTURE</button>
                 </div>
+
                 <div class="credits">
-                    <p class="credits-thanks">Thank you for Playing!</p>
-                    <p class="credits-wish">Wish you all the best</p>
-                    <p class="credits-author">— From Rajat Roy</p>
+                    <div class="credits-title">DATA SCIENCE DUNGEON</div>
+                    <div class="credits-subtitle">Created by Rajat Roy</div>
+                    <div class="credits-end">Thanks for Playing!</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Victory Review Modal -->
+        <div id="victory-review-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-box review-box victory-review-box">
+                <button id="victory-review-close-btn" class="close-btn">×</button>
+                <h2>📜 YOUR DUNGEON JOURNEY</h2>
+
+                <div class="journey-summary">
+                    <div class="journey-stats-grid">
+                        <div class="stat-card mastered">
+                            <span class="stat-icon">⚔️</span>
+                            <span class="stat-value" id="review-total-correct">0</span>
+                            <span class="stat-label">Battles Won</span>
+                        </div>
+                        <div class="stat-card failed">
+                            <span class="stat-icon">💀</span>
+                            <span class="stat-value" id="review-total-incorrect">0</span>
+                            <span class="stat-label">Battles Lost</span>
+                        </div>
+                        <div class="stat-card accuracy">
+                            <span class="stat-icon">🎯</span>
+                            <span class="stat-value" id="review-accuracy">0%</span>
+                            <span class="stat-label">Accuracy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-analysis">
+                    <h3>🗡️ Mastered Dungeons</h3>
+                    <div id="strong-areas" class="topic-list strong">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <h3>🔮 Cursed Chambers</h3>
+                    <div id="weak-areas" class="topic-list weak">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div id="review-questions-list" class="review-questions">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <button id="victory-review-done-btn" class="menu-btn">CLOSE SCROLL</button>
             </div>
         </div>
 
@@ -291,15 +357,15 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="js/audio.js?v=35"></script>
-    <script src="js/api.js?v=35"></script>
+    <script src="js/audio.js?v=36"></script>
+    <script src="js/api.js?v=36"></script>
     <script src="js/questions.js?v=35"></script>
-    <script src="js/gameState.js?v=35"></script>
-    <script src="js/player.js?v=35"></script>
+    <script src="js/gameState.js?v=36"></script>
+    <script src="js/player.js?v=36"></script>
     <script src="js/chest.js?v=35"></script>
     <script src="js/room.js?v=35"></script>
-    <script src="js/ui.js?v=35"></script>
-    <script src="js/game.js?v=35"></script>
+    <script src="js/ui.js?v=36"></script>
+    <script src="js/game.js?v=36"></script>
 </body>
 
 </html>

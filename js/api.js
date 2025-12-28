@@ -2,8 +2,9 @@
 // DATA SCIENCE DUNGEON - API SERVICE
 // ========================================
 
-const API_BASE_URL = `http://${window.location.hostname}:8080/api`;
-const API_HEALTH_URL = `http://${window.location.hostname}:8080/health`;
+// Backend always runs on localhost:8080, even when frontend is accessed via tunnel
+const API_BASE_URL = 'http://localhost:8080/api';
+const API_HEALTH_URL = 'http://localhost:8080/health';
 
 class ApiService {
     constructor() {

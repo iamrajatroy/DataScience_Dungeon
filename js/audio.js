@@ -371,9 +371,10 @@ class AudioManager {
             bassPattern = [131, 0, 165, 0, 175, 0, 165, 0]; // C3, E3, F3, E3
             melodyPattern = [523, 0, 659, 0, 523, 0, 494, 0]; // C5, E5, C5, B4
         } else if (type === 'victory') {
-            // Cheerful, triumphant victory music (C major celebration)
-            bassPattern = [262, 262, 330, 330, 392, 392, 262, 262]; // C4, E4, G4, C4
-            melodyPattern = [1047, 1175, 1319, 1175, 1047, 1319, 1397, 1568]; // C6, D6, E6, D6, C6, E6, F6, G6
+            // Super cheerful, happy retro victory music (faster and more upbeat)
+            bpm = 160; // Much faster for celebration
+            bassPattern = [262, 330, 392, 330, 262, 392, 330, 262]; // C4, E4, G4 - bouncy pattern
+            melodyPattern = [1047, 1319, 1568, 1319, 1760, 1568, 1319, 1047]; // C6, E6, G6, E6, A6, G6, E6, C6
         } else {
             // More energetic game music
             bassPattern = [131, 131, 165, 165, 175, 175, 165, 131];

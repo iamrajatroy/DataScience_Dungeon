@@ -66,6 +66,93 @@ class Player {
             if (e.key === 'ArrowRight' || e.key === 'd') this.keys.right = false;
             if (e.key === ' ') this.keys.space = false;
         });
+
+        // Setup touch controls for mobile/tablet
+        this.setupTouchControls();
+    }
+
+    setupTouchControls() {
+        // D-pad buttons
+        const dpadButtons = document.querySelectorAll('.dpad-btn');
+
+        dpadButtons.forEach(btn => {
+            const key = btn.dataset.key;
+
+            // Touch start - activate movement
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.keys[key] = true;
+                btn.classList.add('pressed');
+            }, { passive: false });
+
+            // Touch end - deactivate movement
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.keys[key] = false;
+                btn.classList.remove('pressed');
+            }, { passive: false });
+
+            // Touch cancel - deactivate movement
+            btn.addEventListener('touchcancel', (e) => {
+                this.keys[key] = false;
+                btn.classList.remove('pressed');
+            });
+
+            // Also support mouse for testing on desktop
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.keys[key] = true;
+                btn.classList.add('pressed');
+            });
+
+            btn.addEventListener('mouseup', (e) => {
+                this.keys[key] = false;
+                btn.classList.remove('pressed');
+            });
+
+            btn.addEventListener('mouseleave', (e) => {
+                this.keys[key] = false;
+                btn.classList.remove('pressed');
+            });
+        });
+
+        // Action button (space key equivalent)
+        const actionBtn = document.getElementById('touch-action-btn');
+        if (actionBtn) {
+            actionBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.keys.space = true;
+                actionBtn.classList.add('pressed');
+            }, { passive: false });
+
+            actionBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.keys.space = false;
+                actionBtn.classList.remove('pressed');
+            }, { passive: false });
+
+            actionBtn.addEventListener('touchcancel', (e) => {
+                this.keys.space = false;
+                actionBtn.classList.remove('pressed');
+            });
+
+            // Mouse support for desktop testing
+            actionBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.keys.space = true;
+                actionBtn.classList.add('pressed');
+            });
+
+            actionBtn.addEventListener('mouseup', (e) => {
+                this.keys.space = false;
+                actionBtn.classList.remove('pressed');
+            });
+
+            actionBtn.addEventListener('mouseleave', (e) => {
+                this.keys.space = false;
+                actionBtn.classList.remove('pressed');
+            });
+        }
     }
 
     update(room) {
@@ -177,7 +264,8 @@ class Player {
             ctx.fillStyle = '#f59e0b';
             ctx.font = '10px "Press Start 2P"';
             ctx.textAlign = 'center';
-            ctx.fillText('SPACE', this.x + this.width / 2, this.y - 10);
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            ctx.fillText(isTouchDevice ? 'TAP ⚡' : 'SPACE', this.x + this.width / 2, this.y - 10);
         }
 
 
